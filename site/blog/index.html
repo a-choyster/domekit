@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — DomeKit</title>
+  <meta name="description" content="Posts about local AI agent permissions, audit logging, and building controlled AI systems.">
+  <link rel="stylesheet" href="../css/landing.css">
+  <link rel="stylesheet" href="../css/blog.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="navbar-logo">Dome<span>Kit</span></a>
+    <ul class="navbar-links">
+      <li><a href="../index.html" class="nav-hide">Home</a></li>
+      <li><button id="theme-toggle" title="Toggle theme">Theme</button></li>
+      <li><a href="https://github.com/a-choyster/domekit" class="btn btn-sm btn-primary">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <main class="blog-list">
+    <h1>Blog</h1>
+    <p class="subtitle">Posts about permissions, audit logging, and building controlled local AI agents.</p>
+
+    <a href="ai-agent-permissions.html" class="post-card">
+      <div class="post-meta">2026-02-15</div>
+      <h2>Your AI Agent Has No Permissions. Here's How to Fix That.</h2>
+      <p>AI agents call tools with zero access control. Here's how to define what your agent can touch, enforce it at runtime, and see exactly what it did.</p>
+    </a>
+  </main>
+
+  <footer class="footer">
+    <span>DomeKit &middot; Permissions and audit logs for local AI agents</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/a-choyster/domekit">GitHub</a></li>
+      <li><a href="../index.html">Home</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem('domekit-theme');
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('domekit-theme', next);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+/* ── Blog — reuses landing.css design tokens ─────────────── */
+
+/* ── Blog listing ────────────────────────────────────────── */
+
+.blog-list {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.blog-list h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.blog-list .subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+.post-card {
+  display: block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+}
+
+.post-card:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.post-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.post-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.post-card .post-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+
+/* ── Blog post ───────────────────────────────────────────── */
+
+.post {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.post-header {
+  margin-bottom: 48px;
+}
+
+.post-header h1 {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.post-header .post-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ── Post body ───────────────────────────────────────────── */
+
+.post-body h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 48px 0 16px;
+  letter-spacing: -0.3px;
+}
+
+.post-body h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 32px 0 12px;
+}
+
+.post-body p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.post-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.post-body ul, .post-body ol {
+  margin: 0 0 20px 24px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+.post-body li {
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+
+.post-body code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+.post-body pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 0 0 24px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.post-body pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+.post-body .comment { color: var(--text-muted); }
+.post-body .cmd { color: var(--green); }
+.post-body .flag { color: var(--yellow); }
+.post-body .str { color: var(--orange); }
+
+.post-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 12px 20px;
+  margin: 0 0 24px;
+  background: rgba(108,140,255,0.06);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.post-body blockquote p {
+  margin-bottom: 0;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+/* ── CTA box ─────────────────────────────────────────────── */
+
+.post-cta {
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 32px;
+  margin: 48px 0;
+  text-align: center;
+}
+
+.post-cta h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.post-cta p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.post-cta .cta-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .post-header h1 { font-size: 28px; }
+  .post-body h2 { font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+  .post { padding: 100px 16px 60px; }
+  .blog-list { padding: 100px 16px 60px; }
+  .post-header h1 { font-size: 24px; }
+}

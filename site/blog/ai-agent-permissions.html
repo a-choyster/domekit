@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AI Agent Has No Permissions. Here's How to Fix That. — DomeKit</title>
+  <meta name="description" content="AI agents call tools with zero access control. Here's how to define what your agent can touch, enforce it at runtime, and log everything it does.">
+  <link rel="stylesheet" href="../css/landing.css">
+  <link rel="stylesheet" href="../css/blog.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="navbar-logo">Dome<span>Kit</span></a>
+    <ul class="navbar-links">
+      <li><a href="index.html" class="nav-hide">Blog</a></li>
+      <li><button id="theme-toggle" title="Toggle theme">Theme</button></li>
+      <li><a href="https://github.com/a-choyster/domekit" class="btn btn-sm btn-primary">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <article class="post">
+    <header class="post-header">
+      <h1>Your AI Agent Has No Permissions. Here's How to Fix That.</h1>
+      <div class="post-meta">2026-02-15 &middot; 8 min read</div>
+    </header>
+
+    <div class="post-body">
+
+      <h2>The problem: agents with no boundaries</h2>
+
+      <p>
+        You're building an AI agent. It calls tools &mdash; queries a database,
+        reads files, maybe searches a vector store. It works. But ask yourself:
+      </p>
+
+      <ul>
+        <li>Which databases can it query? All of them, or just the one it should?</li>
+        <li>Which files can it read? Everything on the filesystem?</li>
+        <li>Can you see exactly which tools it called and what data it accessed?</li>
+        <li>If it does something wrong, do you have a log of what happened?</li>
+      </ul>
+
+      <p>
+        If you're using Ollama with LangChain or CrewAI, the answer to most of
+        these is <strong>no</strong>. Your agent has the same access as whatever
+        process is running it. There are no permissions, no boundaries, and no
+        audit trail.
+      </p>
+
+      <p>
+        This isn't a compliance problem (yet). It's a <strong>"my agent just
+        read the wrong database and I have no idea what it did"</strong> problem.
+      </p>
+
+      <h2>What actually goes wrong</h2>
+
+      <p>Without access control, agents fail in predictable ways:</p>
+
+      <p>
+        <strong>Wrong data access.</strong> You have a health database and a
+        billing database. Your agent should only touch health data. But nothing
+        stops it from querying billing. The model decides what to query based on
+        the prompt &mdash; and models make mistakes.
+      </p>
+
+      <p>
+        <strong>Path traversal.</strong> Your agent reads files from a
+        <code>data/</code> folder. A crafted prompt makes it request
+        <code>../../etc/passwd</code>. If your tool implementation doesn't
+        check, it reads it.
+      </p>
+
+      <p>
+        <strong>No record of anything.</strong> Your agent ran 47 tool calls in
+        a session. Something went wrong. You have no log of what it did, which
+        tools it called, or what data it accessed. You're debugging blind.
+      </p>
+
+      <p>
+        <strong>Uncontrolled vector search.</strong> You added semantic search
+        over your documents. But your agent can search any collection &mdash;
+        including ones with data it shouldn't see. And there's no record of
+        what queries it ran.
+      </p>
+
+      <h2>The fix: define permissions, enforce at runtime, log everything</h2>
+
+      <p>
+        DomeKit is an open-source runtime that sits between your agent and
+        your model server. You write a YAML file that says exactly what your
+        agent can do. DomeKit enforces it on every tool call and logs everything.
+      </p>
+
+      <p>Here's what a manifest looks like:</p>
+
+<pre><code><span class="comment"># domekit.yaml</span>
+<span class="cmd">app</span>:
+  <span class="flag">name</span>: my-agent
+
+<span class="cmd">policy</span>:
+  <span class="cmd">network</span>:
+    <span class="flag">outbound</span>: deny                      <span class="comment"># no external network access</span>
+  <span class="cmd">tools</span>:
+    <span class="flag">allow</span>: [sql_query, read_file, vector_search]
+  <span class="cmd">data</span>:
+    <span class="flag">sqlite</span>:
+      allow: [<span class="str">"data/health.db"</span>]          <span class="comment"># only this database</span>
+    <span class="flag">filesystem</span>:
+      allow_read: [<span class="str">"data/"</span>]              <span class="comment"># only this folder</span>
+      allow_write: []                     <span class="comment"># no file writes</span>
+    <span class="flag">vector</span>:
+      allow: [<span class="str">"health-*"</span>]                <span class="comment"># these collections only</span>
+
+<span class="cmd">models</span>:
+  <span class="flag">backend</span>: ollama
+  <span class="flag">default</span>: llama3.1:8b
+
+<span class="cmd">embedding</span>:
+  <span class="flag">backend</span>: ollama
+  <span class="flag">model</span>: nomic-embed-text
+
+<span class="cmd">vector_db</span>:
+  <span class="flag">backend</span>: chroma
+  <span class="flag">default_top_k</span>: 10
+
+<span class="cmd">audit</span>:
+  <span class="flag">path</span>: <span class="str">"audit.jsonl"</span></code></pre>
+
+      <p>
+        That's it. If the agent tries to query <code>billing.db</code> &mdash;
+        blocked. If it tries to read a file outside <code>data/</code> &mdash;
+        blocked. If it tries to use a tool not in the allow list &mdash; blocked.
+        Every attempt, allowed or denied, is logged to an append-only audit file.
+      </p>
+
+      <h2>See it work: 5 commands</h2>
+
+<pre><code><span class="comment"># 1. Clone and install</span>
+<span class="cmd">git clone</span> https://github.com/a-choyster/domekit.git
+<span class="cmd">cd</span> domekit && <span class="cmd">pip install</span> <span class="flag">-e</span> <span class="str">".[dev]"</span>
+
+<span class="comment"># 2. Set up sample data</span>
+<span class="cmd">python</span> apps/health-poc/ingest/sample_data.py
+<span class="cmd">python</span> apps/health-poc/ingest/ingest.py
+
+<span class="comment"># 3. Start the runtime (permissions enforced from domekit.yaml)</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">run</span> apps/health-poc/domekit.yaml
+
+<span class="comment"># 4. Ask a question</span>
+<span class="cmd">python</span> apps/health-poc/client/health.py <span class="flag">ask</span> <span class="str">"How many activities are in my database?"</span>
+
+<span class="comment"># 5. See what happened</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl</code></pre>
+
+      <p>
+        The audit log shows every tool call, every SQL query, every policy
+        decision. Open <code>localhost:8080/dashboard</code> for a live view
+        with security alerts, metrics, and request drill-down.
+      </p>
+
+      <h2>Vector search, with access control</h2>
+
+      <p>
+        DomeKit has built-in vector search with ChromaDB and LanceDB backends.
+        Embeddings are generated locally via Ollama &mdash; no data leaves your
+        machine.
+      </p>
+
+      <p>
+        The key difference from standalone vector search: <strong>every query is
+        policy-checked</strong>. Your manifest declares which collections the
+        agent can search and which it can write to. Reads and writes have
+        separate allow-lists.
+      </p>
+
+<pre><code><span class="comment"># In your manifest:</span>
+<span class="cmd">policy</span>:
+  <span class="cmd">data</span>:
+    <span class="flag">vector</span>:
+      allow: [<span class="str">"health-*"</span>]            <span class="comment"># search these</span>
+      allow_write: [<span class="str">"health-activities"</span>]  <span class="comment"># write only here</span>
+
+<span class="comment"># The agent can do this:</span>
+{<span class="str">"tool"</span>: <span class="str">"vector_search"</span>,
+ <span class="str">"arguments"</span>: {<span class="str">"collection"</span>: <span class="str">"health-activities"</span>,
+               <span class="str">"query"</span>: <span class="str">"morning runs"</span>,
+               <span class="str">"top_k"</span>: 5}}
+
+<span class="comment"># But NOT this (collection not in allow list):</span>
+{<span class="str">"tool"</span>: <span class="str">"vector_search"</span>,
+ <span class="str">"arguments"</span>: {<span class="str">"collection"</span>: <span class="str">"customer-emails"</span>,
+               <span class="str">"query"</span>: <span class="str">"complaints"</span>}}</code></pre>
+
+      <p>
+        Both allowed and blocked queries are audit-logged. Glob patterns work
+        for collection names (<code>health-*</code> matches
+        <code>health-activities</code>, <code>health-sleep</code>, etc.).
+      </p>
+
+      <p>
+        Five built-in tools in total: <code>sql_query</code>,
+        <code>read_file</code>, <code>write_file</code>,
+        <code>vector_search</code>, and <code>vector_manage</code>. All
+        policy-checked, all audit-logged.
+      </p>
+
+      <h2>Works with your existing stack</h2>
+
+      <p>
+        DomeKit exposes an <strong>OpenAI-compatible API</strong> on
+        <code>localhost:8080</code>. Any framework that can talk to an
+        OpenAI endpoint works &mdash; you just point it at DomeKit instead of
+        OpenAI or Ollama directly.
+      </p>
+
+      <ul>
+        <li><strong>LangChain</strong> &mdash; use <code>ChatOpenAI(base_url="http://localhost:8080/v1")</code></li>
+        <li><strong>CrewAI</strong> &mdash; set the OpenAI base URL to DomeKit</li>
+        <li><strong>Any OpenAI client</strong> &mdash; same change, one line</li>
+      </ul>
+
+      <p>
+        The framework doesn't know about permissions. It just sends requests.
+        DomeKit handles policy enforcement, tool execution, and audit logging
+        behind the scenes. Your framework gets the same responses it would
+        from OpenAI &mdash; but with access control baked in.
+      </p>
+
+      <p>
+        We have example repos for both:
+      </p>
+
+      <ul>
+        <li><a href="https://github.com/a-choyster/domekit-langchain-example">domekit-langchain-example</a> &mdash; LangChain agent with policy-checked SQL and vector search</li>
+        <li><a href="https://github.com/a-choyster/domekit-crewai-example">domekit-crewai-example</a> &mdash; CrewAI crew where DomeKit controls what each agent can access</li>
+      </ul>
+
+      <h2>Why this matters even if you're a solo dev</h2>
+
+      <p>
+        You don't need a compliance department to want to know what your AI
+        agent is doing.
+      </p>
+
+      <p>
+        If you're building agents for yourself or a small team, you still want
+        basic control: which tools can this agent use? What data can it see?
+        What did it actually do? If something breaks, can I trace it?
+      </p>
+
+      <p>
+        DomeKit gives you that in a single YAML file with no infrastructure.
+        It runs on your laptop alongside Ollama. No cloud, no accounts, no
+        setup beyond <code>pip install</code>.
+      </p>
+
+      <p>
+        And if you ever need to prove what your agent did (or didn't do), the
+        structured JSONL audit log is already there.
+      </p>
+
+      <div class="post-cta">
+        <h3>Try DomeKit</h3>
+        <p>Open source, MIT licensed, runs locally. Set up in 5 minutes.</p>
+        <div class="cta-links">
+          <a href="https://github.com/a-choyster/domekit" class="btn btn-primary">GitHub</a>
+          <a href="../quickstart.html" class="btn">Quick Start</a>
+          <a href="https://github.com/a-choyster/domekit/blob/main/docs/built-in-tools.md" class="btn">Tool Docs</a>
+        </div>
+      </div>
+
+    </div>
+  </article>
+
+  <footer class="footer">
+    <span>DomeKit &middot; Permissions and audit logs for local AI agents</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/a-choyster/domekit">GitHub</a></li>
+      <li><a href="../index.html">Home</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem('domekit-theme');
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('domekit-theme', next);
+    });
+  </script>
+
+</body>
+</html>
