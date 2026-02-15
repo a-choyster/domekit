@@ -88,24 +88,26 @@ class TestHealthEndpoint:
 
 
 class TestOllamaAdapter:
-    def test_to_ollama_message(self) -> None:
-        msg = Message(role=Role.USER, content="hello")
-        result = OllamaAdapter._to_ollama_message(msg)
-        assert result == {"role": "user", "content": "hello"}
+    def test_build_messages_simple(self) -> None:
+        msgs = [Message(role=Role.USER, content="hello")]
+        result = OllamaAdapter._build_messages(msgs, prompt_tools=False)
+        assert result == [{"role": "user", "content": "hello"}]
 
-    def test_to_ollama_message_with_tool_calls(self) -> None:
-        msg = Message(
-            role=Role.ASSISTANT,
-            tool_calls=[
-                ToolCall(
-                    id="call_0",
-                    function=ToolCallFunction(name="test", arguments='{"a": 1}'),
-                )
-            ],
-        )
-        result = OllamaAdapter._to_ollama_message(msg)
-        assert result["tool_calls"][0]["function"]["name"] == "test"
-        assert result["tool_calls"][0]["function"]["arguments"] == {"a": 1}
+    def test_build_messages_with_tool_calls(self) -> None:
+        msgs = [
+            Message(
+                role=Role.ASSISTANT,
+                tool_calls=[
+                    ToolCall(
+                        id="call_0",
+                        function=ToolCallFunction(name="test", arguments='{"a": 1}'),
+                    )
+                ],
+            )
+        ]
+        result = OllamaAdapter._build_messages(msgs, prompt_tools=False)
+        assert result[0]["tool_calls"][0]["function"]["name"] == "test"
+        assert result[0]["tool_calls"][0]["function"]["arguments"] == {"a": 1}
 
     def test_from_ollama_response_content(self) -> None:
         data = {"message": {"role": "assistant", "content": "Hello!"}}
