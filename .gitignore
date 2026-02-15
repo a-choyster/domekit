@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.jsonl
+apps/health-poc/data/*.db
+
+# Runtime data
+.domekit/
+
+# Editor / tool configs
+.claude/

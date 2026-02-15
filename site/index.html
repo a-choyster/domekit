@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DomeKit — Permissions and Audit Logs for Local AI Agents</title>
+  <meta name="description" content="Control what your AI agent can access. Define permissions in YAML, see what it did, stop it from touching things it shouldn't. Open source.">
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="#" class="navbar-logo">Dome<span>Kit</span></a>
+    <ul class="navbar-links">
+      <li><a href="#features" class="nav-hide">Features</a></li>
+      <li><a href="#how-it-works" class="nav-hide">How It Works</a></li>
+      <li><a href="#comparison" class="nav-hide">Why DomeKit?</a></li>
+      <li><button id="theme-toggle" title="Toggle theme">Theme</button></li>
+      <li><a href="https://github.com/a-choyster/domekit" class="btn btn-sm btn-primary">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── 1. Hero ─────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-badge">Open Source &middot; MIT License &middot; Works with Ollama</div>
+    <h1>Control what your AI agent<br><span class="highlight">can access</span></h1>
+    <p class="hero-sub">
+      Define permissions in a YAML file. See exactly what your agent did.
+      Stop it from touching things it shouldn't. Open source, runs locally,
+      works with Ollama.
+    </p>
+    <div class="hero-actions">
+      <a href="quickstart.html" class="btn btn-primary">Get Started</a>
+      <a href="https://github.com/a-choyster/domekit" class="btn">View on GitHub</a>
+    </div>
+  </section>
+
+  <!-- ── 2. Problem ──────────────────────────────────────── -->
+  <section id="problem">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">AI agents are powerful. And uncontrolled.</h2>
+    <p class="section-subtitle">
+      You're building agents that call tools, query databases, and read files.
+      But what stops them from accessing the wrong data, running dangerous queries,
+      or touching files they shouldn't?
+    </p>
+
+    <div class="gap-grid">
+      <div class="gap-card">
+        <div class="stat" style="font-size: 24px;">No permissions</div>
+        <div class="stat-label">Local AI tools don't limit what your agent can access. Every file, every database, every tool is fair game.</div>
+      </div>
+      <div class="gap-card">
+        <div class="stat" style="font-size: 24px;">No audit trail</div>
+        <div class="stat-label">When something goes wrong, there's no log of what the agent did. You're debugging blind.</div>
+      </div>
+      <div class="gap-card">
+        <div class="stat" style="font-size: 24px;">No guardrails</div>
+        <div class="stat-label">Path traversal, SQL injection, unauthorized file access &mdash; your agent won't catch these. Will your code?</div>
+      </div>
+      <div class="gap-card">
+        <div class="stat" style="font-size: 24px;">No proof</div>
+        <div class="stat-label">Can you prove your AI never accessed customer data it shouldn't have? Right now, no.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. Key Features ─────────────────────────────────── -->
+  <section id="features">
+    <div class="section-label">What DomeKit Does</div>
+    <h2 class="section-title">Permissions, guardrails, and logs for AI agents</h2>
+    <p class="section-subtitle">
+      DomeKit wraps your model server and enforces rules on every request.
+      Define what your agent can do in a YAML file &mdash; everything else is denied.
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon feature-icon-blue">&#x1F4DC;</div>
+        <h3>YAML-Based Permissions</h3>
+        <p>One file controls everything: which tools the agent can use, which databases it can query, which files it can read, and whether it can access the network. Denied by default.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon feature-icon-green">&#x1F4DD;</div>
+        <h3>Full Activity Log</h3>
+        <p>Every tool call, every SQL query, every file read is logged with the full request context. When something goes wrong, you can trace exactly what happened and why.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon feature-icon-purple">&#x1F512;</div>
+        <h3>No Data Leaves Your Machine</h3>
+        <p>Network egress is denied by default. You can verify this with the included proof script. Your data stays on your hardware.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon feature-icon-red">&#x1F6E1;</div>
+        <h3>Built-in Safety Checks</h3>
+        <p>Path traversal prevention, SQL injection detection, burst request alerts. The guardrails that model servers don't include but your production system needs.</p>
+      </div>
+      <div class="feature-card wide">
+        <div class="feature-icon feature-icon-orange">&#x1F4CA;</div>
+        <h3>See What Your Agent Is Doing</h3>
+        <p>Built-in dashboard shows live agent activity, security alerts, request metrics, and tool usage. No external dependencies &mdash; opens in your browser at <code>localhost:8080/dashboard</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. How It Works ─────────────────────────────────── -->
+  <section id="how-it-works">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">One YAML file. Everything else is automatic.</h2>
+    <p class="section-subtitle">
+      Define what your agent is allowed to do. DomeKit enforces it on every
+      request and logs everything.
+    </p>
+
+    <div class="quickstart" style="margin-bottom: 32px;">
+      <div class="quickstart-header">
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        domekit.yaml
+      </div>
+      <pre>
+<span class="comment"># What tools can the agent use?</span>
+<span class="cmd">policy</span>:
+  <span class="cmd">tools</span>:
+    <span class="flag">allow</span>: [sql_query, read_file]     <span class="comment"># only these two</span>
+
+  <span class="comment"># What data can it access?</span>
+  <span class="cmd">data</span>:
+    <span class="flag">sqlite</span>:
+      allow: [<span class="flag">"data/app.db"</span>]          <span class="comment"># this database only</span>
+    <span class="flag">filesystem</span>:
+      allow_read: [<span class="flag">"data/"</span>]            <span class="comment"># this folder only</span>
+      allow_write: []                   <span class="comment"># no writes</span>
+
+  <span class="comment"># Can it access the network?</span>
+  <span class="cmd">network</span>:
+    <span class="flag">outbound</span>: deny                    <span class="comment"># no</span></pre>
+    </div>
+
+    <div class="arch-diagram">
+      <div class="layer">
+        <div class="arch-box">Your App / Agent / CLI</div>
+      </div>
+      <div class="arch-arrow">&darr; &nbsp;API call (OpenAI-compatible)</div>
+      <div class="layer">
+        <div class="arch-box accent" style="min-width: 340px;">DomeKit &mdash; checks permissions, logs everything</div>
+      </div>
+      <div class="arch-row" style="margin: 12px 0;">
+        <div class="arch-box" style="min-width: auto; font-size: 12px;">Permission Check</div>
+        <div class="arch-box" style="min-width: auto; font-size: 12px;">Tool Router</div>
+        <div class="arch-box" style="min-width: auto; font-size: 12px;">Activity Log</div>
+        <div class="arch-box" style="min-width: auto; font-size: 12px;">Safety Checks</div>
+      </div>
+      <div class="arch-arrow">&darr; &nbsp;Only allowed requests pass through</div>
+      <div class="layer">
+        <div class="arch-box green">Ollama (your local models)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. Quickstart ───────────────────────────────────── -->
+  <section id="quickstart">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">5 minutes to controlled AI agents</h2>
+    <p class="section-subtitle">
+      Already have Ollama? Add DomeKit and get permissions, activity logs,
+      and a dashboard on top of your existing setup.
+    </p>
+
+    <div class="quickstart">
+      <div class="quickstart-header">
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        Terminal
+      </div>
+      <pre>
+<span class="comment"># 1. Install</span>
+<span class="cmd">git clone</span> https://github.com/a-choyster/domekit.git && <span class="cmd">cd</span> domekit
+<span class="cmd">pip install</span> <span class="flag">-e</span> ".[dev]"
+
+<span class="comment"># 2. Set up the demo app (health data query agent)</span>
+<span class="cmd">python</span> apps/health-poc/ingest/sample_data.py
+<span class="cmd">python</span> apps/health-poc/ingest/ingest.py
+
+<span class="comment"># 3. Start the runtime &mdash; permissions enforced from domekit.yaml</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">run</span> apps/health-poc/domekit.yaml
+
+<span class="comment"># 4. Ask a question &mdash; the agent can only use allowed tools &amp; data</span>
+<span class="cmd">python</span> apps/health-poc/client/health.py <span class="flag">ask</span> "How many activities are in my database?"
+
+<span class="comment"># 5. See what the agent did</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl
+
+<span class="comment"># 6. Open the live dashboard</span>
+<span class="cmd">open</span> http://localhost:8080/dashboard</pre>
+    </div>
+  </section>
+
+  <!-- ── 6. Comparison ───────────────────────────────────── -->
+  <section id="comparison">
+    <div class="section-label">Comparison</div>
+    <h2 class="section-title">What Ollama doesn't do</h2>
+    <p class="section-subtitle">
+      Ollama runs your models. DomeKit controls what they can access.
+      They're complementary &mdash; DomeKit wraps Ollama with the permissions
+      layer it doesn't include.
+    </p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>Ollama</th>
+          <th>DomeKit + Ollama</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Run local models</td>
+          <td><span class="check">Yes</span></td>
+          <td><span class="check">Yes</span> (via Ollama)</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Control which tools the agent can use</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Restrict which databases / files it can access</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Log every tool call and query</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Block network egress by default</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Detect path traversal / SQL injection</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Live activity dashboard</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr>
+          <td>YAML-based permission config</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr>
+          <td>OpenAI-compatible API</td>
+          <td><span class="check">Yes</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-muted);">
+      Bonus: the activity log is structured JSONL &mdash; ready for compliance audits
+      if you ever need them (EU AI Act, HIPAA, SOC 2).
+    </p>
+  </section>
+
+  <!-- ── 7. CTA ──────────────────────────────────────────── -->
+  <section class="cta">
+    <h2>Know what your AI agent is doing</h2>
+    <p>Open source. Runs locally. Set up in 5 minutes. MIT licensed.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/a-choyster/domekit" class="btn btn-primary">View on GitHub</a>
+      <a href="quickstart.html" class="btn">Quick Start Guide</a>
+      <a href="https://github.com/a-choyster/domekit/blob/main/README.md" class="btn">Documentation</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>DomeKit &middot; Permissions and audit logs for local AI agents</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/a-choyster/domekit">GitHub</a></li>
+      <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md">Docs</a></li>
+      <li><a href="https://github.com/a-choyster/domekit/blob/main/LICENSE">MIT License</a></li>
+    </ul>
+  </footer>
+
+  <!-- ── Theme Toggle ────────────────────────────────────── -->
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem('domekit-theme');
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('domekit-theme', next);
+    });
+  </script>
+
+</body>
+</html>

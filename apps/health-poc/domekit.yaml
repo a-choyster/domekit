@@ -1,0 +1,39 @@
+app:
+  name: health-poc
+  version: "0.1.0"
+
+runtime:
+  base_url: "http://127.0.0.1:8080"
+  policy_mode: local_only
+
+policy:
+  network:
+    outbound: deny
+  tools:
+    allow: [sql_query, read_file]
+  data:
+    sqlite:
+      allow: ["apps/health-poc/data/health.db"]
+    filesystem:
+      allow_read: ["apps/health-poc/"]
+      allow_write: []
+
+models:
+  backend: ollama
+  default: llama3.1:8b
+  map:
+    default:
+      id: llama3.1:8b
+      context_window: 8192
+
+tools:
+  sql_query:
+    type: builtin
+    read_only: true
+    max_rows: 50
+  read_file:
+    type: builtin
+    max_bytes: 65536
+
+audit:
+  path: "apps/health-poc/data/audit.jsonl"

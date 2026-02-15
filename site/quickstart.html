@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DomeKit Quickstart — 5 Minutes to Controlled AI Agents</title>
+  <meta name="description" content="Set up DomeKit in 5 minutes. Control what your AI agent can access, see what it did, and stop it from touching things it shouldn't.">
+  <link rel="stylesheet" href="css/landing.css">
+  <style>
+    .step { margin-bottom: 48px; }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .step-header h3 { font-size: 18px; font-weight: 600; }
+    .step p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.7; }
+    .step .note {
+      font-size: 13px;
+      color: var(--text-muted);
+      border-left: 3px solid var(--border);
+      padding: 8px 16px;
+      margin: 16px 0;
+      background: var(--bg-secondary);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .before-after-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .before-after-card .card-label {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-red { background: rgba(248,113,113,0.1); color: var(--red); }
+    .label-green { background: rgba(74,222,128,0.1); color: var(--green); }
+    .before-after-card pre {
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 0;
+    }
+    .log-entry {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .log-key { color: var(--accent); }
+    .log-str { color: var(--green); }
+    .log-comment { color: var(--text-muted); font-family: var(--font-sans); font-size: 12px; }
+    .dashboard-views {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .dash-view {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+    }
+    .dash-view h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .dash-view p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .prereqs {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .prereq {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+    }
+    .prereq .check { font-size: 16px; }
+    @media (max-width: 768px) {
+      .before-after { grid-template-columns: 1fr; }
+      .dashboard-views { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">Dome<span>Kit</span></a>
+    <ul class="navbar-links">
+      <li><a href="index.html" class="nav-hide">Home</a></li>
+      <li><button id="theme-toggle" title="Toggle theme">Theme</button></li>
+      <li><a href="https://github.com/a-choyster/domekit" class="btn btn-sm btn-primary">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <section class="hero" style="padding-bottom: 40px;">
+    <div class="hero-badge">Quickstart Guide</div>
+    <h1>5 minutes to<br><span class="highlight">controlled AI agents</span></h1>
+    <p class="hero-sub">
+      You have Ollama running. Let's add permissions, activity logging, and
+      safety checks to your AI agent.
+    </p>
+  </section>
+
+  <!-- ── Before / After ──────────────────────────────────── -->
+  <section style="padding-top: 0;">
+    <div class="section-label">Why Bother?</div>
+    <h2 class="section-title">Your agent without vs with DomeKit</h2>
+    <p class="section-subtitle">
+      Here's what changes when you add DomeKit to your setup.
+    </p>
+
+    <div class="before-after">
+      <div class="before-after-card">
+        <div class="card-label label-red">Without DomeKit</div>
+        <pre>
+<span style="color: var(--text-muted);"># Your agent calls Ollama directly</span>
+<span style="color: var(--text-secondary);">POST http://localhost:11434/api/chat</span>
+
+<span style="color: var(--red);">Agent can use any tool</span>
+<span style="color: var(--red);">Agent can query any database</span>
+<span style="color: var(--red);">Agent can read any file on disk</span>
+<span style="color: var(--red);">Agent can make network requests</span>
+<span style="color: var(--red);">No log of what happened</span>
+<span style="color: var(--red);">No way to prove what it accessed</span></pre>
+      </div>
+      <div class="before-after-card">
+        <div class="card-label label-green">With DomeKit</div>
+        <pre>
+<span style="color: var(--text-muted);"># Your agent calls DomeKit, which calls Ollama</span>
+<span style="color: var(--text-secondary);">POST http://localhost:8080/v1/chat/completions</span>
+
+<span style="color: var(--green);">Only allowed tools can be used</span>
+<span style="color: var(--green);">Only specified databases accessible</span>
+<span style="color: var(--green);">Only permitted directories readable</span>
+<span style="color: var(--green);">Network egress denied by default</span>
+<span style="color: var(--green);">Every action logged (JSONL)</span>
+<span style="color: var(--green);">Full audit trail with request IDs</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Prerequisites ───────────────────────────────────── -->
+  <section style="padding-top: 0;">
+    <div class="section-label">Before You Start</div>
+    <h2 class="section-title">Prerequisites</h2>
+
+    <div class="prereqs">
+      <div class="prereq"><span class="check" style="color: var(--green);">&#10003;</span> Python 3.11+</div>
+      <div class="prereq"><span class="check" style="color: var(--green);">&#10003;</span> Ollama installed &amp; running</div>
+      <div class="prereq"><span class="check" style="color: var(--green);">&#10003;</span> A model pulled (e.g. llama3.1:8b)</div>
+    </div>
+
+    <div class="quickstart" style="margin-top: 16px;">
+      <div class="quickstart-header">
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        Verify prerequisites
+      </div>
+      <pre>
+<span class="comment"># Check Python version</span>
+<span class="cmd">python3</span> <span class="flag">--version</span>          <span class="comment"># Should be 3.11+</span>
+
+<span class="comment"># Check Ollama is running</span>
+<span class="cmd">curl</span> http://localhost:11434/api/tags
+
+<span class="comment"># Pull a model if you haven't already</span>
+<span class="cmd">ollama</span> <span class="flag">pull</span> llama3.1:8b</pre>
+    </div>
+  </section>
+
+  <!-- ── Steps ───────────────────────────────────────────── -->
+  <section style="padding-top: 0;">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">1</span>
+        <h3>Install DomeKit</h3>
+      </div>
+      <p>Clone the repo and install in development mode.</p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal
+        </div>
+        <pre>
+<span class="cmd">git clone</span> https://github.com/a-choyster/domekit.git
+<span class="cmd">cd</span> domekit
+<span class="cmd">python3</span> <span class="flag">-m</span> venv .venv
+<span class="cmd">source</span> .venv/bin/activate
+<span class="cmd">pip install</span> <span class="flag">-e</span> ".[dev]"</pre>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">2</span>
+        <h3>Look at the manifest</h3>
+      </div>
+      <p>
+        The manifest is a YAML file that defines what your agent is allowed to do.
+        The demo app comes with one. Here's what it says:
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          apps/health-poc/domekit.yaml
+        </div>
+        <pre>
+<span class="cmd">policy</span>:
+  <span class="cmd">network</span>:
+    <span class="flag">outbound</span>: deny                <span class="comment"># No network access</span>
+
+  <span class="cmd">tools</span>:
+    <span class="flag">allow</span>: [sql_query, read_file]  <span class="comment"># Only these 2 tools</span>
+
+  <span class="cmd">data</span>:
+    <span class="flag">sqlite</span>:
+      allow:
+        - <span class="flag">"apps/health-poc/data/health.db"</span>  <span class="comment"># This DB only</span>
+    <span class="flag">filesystem</span>:
+      allow_read:
+        - <span class="flag">"apps/health-poc/"</span>              <span class="comment"># This folder only</span>
+      allow_write: []                    <span class="comment"># No writes</span></pre>
+      </div>
+      <p>
+        This means the agent can only use <code>sql_query</code> and <code>read_file</code>,
+        can only query <code>health.db</code>, can only read files in <code>apps/health-poc/</code>,
+        can't write anything, and can't access the network. Everything else is denied.
+      </p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">3</span>
+        <h3>Generate sample data and start the runtime</h3>
+      </div>
+      <p>
+        The demo app queries health/fitness data. Generate synthetic data, then start DomeKit.
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal
+        </div>
+        <pre>
+<span class="comment"># Generate 90 days of synthetic health data</span>
+<span class="cmd">python</span> apps/health-poc/ingest/sample_data.py
+<span class="cmd">python</span> apps/health-poc/ingest/ingest.py
+
+<span class="comment"># Validate the manifest (optional — catches config errors)</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">validate</span> apps/health-poc/domekit.yaml
+
+<span class="comment"># Start the runtime</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">run</span> apps/health-poc/domekit.yaml</pre>
+      </div>
+      <div class="note">
+        The runtime starts on <code>http://localhost:8080</code>. It exposes an OpenAI-compatible
+        API, so any client that works with OpenAI's API will work with DomeKit.
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">4</span>
+        <h3>Ask the agent a question</h3>
+      </div>
+      <p>
+        Open a second terminal. The demo client sends a natural language question
+        to DomeKit, which routes it through the model and tools.
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal (second tab)
+        </div>
+        <pre>
+<span class="cmd">python</span> apps/health-poc/client/health.py <span class="flag">ask</span> "How many activities are in my database?"</pre>
+      </div>
+      <p>You'll see a response like:</p>
+      <div class="log-entry">
+There are 79 activities in the database.
+
+---
+  <span class="log-key">request_id</span>:     <span class="log-str">89cc5c7c-329e-43f5-a373-51dd6611928a</span>
+  <span class="log-key">tools_used</span>:     <span class="log-str">['sql_query']</span>
+  <span class="log-key">tables_queried</span>: <span class="log-str">[]</span>
+  <span class="log-key">policy_mode</span>:    <span class="log-str">local_only</span>
+  <span class="log-key">model</span>:          <span class="log-str">llama3.1:8b</span>
+      </div>
+      <p>
+        The agent used <code>sql_query</code> to count rows — and the response includes
+        a <code>request_id</code> you can use to trace exactly what happened.
+      </p>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">5</span>
+        <h3>See what the agent actually did</h3>
+      </div>
+      <p>
+        Every tool call, every SQL query, every policy decision is logged.
+        Check the audit log:
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal
+        </div>
+        <pre>
+<span class="comment"># Show recent activity</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl
+
+<span class="comment"># Trace a specific request</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl <span class="flag">-r</span> 89cc5c7c
+
+<span class="comment"># Show only policy blocks (if any)</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl <span class="flag">-e</span> policy.block</pre>
+      </div>
+      <p>Here's what a single request looks like in the log:</p>
+      <div class="log-entry">
+<span class="log-comment">The request started:</span>
+{<span class="log-key">"ts"</span>: <span class="log-str">"2026-02-15T10:30:01Z"</span>, <span class="log-key">"event"</span>: <span class="log-str">"request.start"</span>, <span class="log-key">"request_id"</span>: <span class="log-str">"89cc5c7c"</span>}
+
+<span class="log-comment">The agent called a tool (DomeKit checked permissions first):</span>
+{<span class="log-key">"ts"</span>: <span class="log-str">"2026-02-15T10:30:03Z"</span>, <span class="log-key">"event"</span>: <span class="log-str">"tool.call"</span>, <span class="log-key">"detail"</span>: {<span class="log-key">"tool"</span>: <span class="log-str">"sql_query"</span>, <span class="log-key">"arguments"</span>: {<span class="log-key">"query"</span>: <span class="log-str">"SELECT COUNT(*) FROM activities"</span>}}}
+
+<span class="log-comment">The tool returned results:</span>
+{<span class="log-key">"ts"</span>: <span class="log-str">"2026-02-15T10:30:03Z"</span>, <span class="log-key">"event"</span>: <span class="log-str">"tool.result"</span>, <span class="log-key">"detail"</span>: {<span class="log-key">"tool"</span>: <span class="log-str">"sql_query"</span>, <span class="log-key">"rows"</span>: [[79]]}}
+
+<span class="log-comment">The request finished:</span>
+{<span class="log-key">"ts"</span>: <span class="log-str">"2026-02-15T10:30:05Z"</span>, <span class="log-key">"event"</span>: <span class="log-str">"request.end"</span>, <span class="log-key">"detail"</span>: {<span class="log-key">"tools_used"</span>: [<span class="log-str">"sql_query"</span>]}}
+      </div>
+      <p>
+        You can see the exact SQL query the agent ran, what it returned, and how long
+        it took. This is structured JSONL — you can pipe it to <code>jq</code>,
+        search it, or feed it into any log aggregator.
+      </p>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">6</span>
+        <h3>See what happens when the agent tries something it shouldn't</h3>
+      </div>
+      <p>
+        The manifest only allows <code>sql_query</code> and <code>read_file</code>.
+        If the model tries to use <code>write_file</code> or access a database
+        not in the allow list, DomeKit blocks it and logs the attempt.
+      </p>
+      <p>
+        Try asking something that might trigger a write or out-of-scope access:
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal
+        </div>
+        <pre>
+<span class="comment"># Ask something that might trigger an unauthorized tool</span>
+<span class="cmd">python</span> apps/health-poc/client/health.py <span class="flag">ask</span> "Write a summary to output.txt"
+
+<span class="comment"># Check for policy blocks</span>
+<span class="cmd">python</span> cli/domekit.py <span class="flag">logs</span> apps/health-poc/data/audit.jsonl <span class="flag">-e</span> policy.block</pre>
+      </div>
+      <p>If the agent tries to use <code>write_file</code>, you'll see:</p>
+      <div class="log-entry">
+{<span class="log-key">"event"</span>: <span class="log-str">"policy.block"</span>, <span class="log-key">"detail"</span>: {<span class="log-key">"tool"</span>: <span class="log-str">"write_file"</span>, <span class="log-key">"reason"</span>: <span class="log-str">"Tool 'write_file' not in allow list"</span>}}
+      </div>
+      <p>
+        The tool call was denied before it executed. The agent gets an error message
+        and can only proceed using permitted tools. The block is logged for review.
+      </p>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-number">7</span>
+        <h3>Open the dashboard</h3>
+      </div>
+      <p>
+        DomeKit includes a built-in dashboard served at
+        <code>http://localhost:8080/dashboard</code>. No external dependencies —
+        it's vanilla HTML/CSS/JS served by the runtime.
+      </p>
+      <div class="quickstart">
+        <div class="quickstart-header">
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          <span class="quickstart-dot"></span>
+          Terminal
+        </div>
+        <pre>
+<span class="cmd">open</span> http://localhost:8080/dashboard</pre>
+      </div>
+      <p>The dashboard has four views:</p>
+      <div class="dashboard-views">
+        <div class="dash-view">
+          <h4>Logs</h4>
+          <p>Filterable audit log table with live tail (real-time streaming). Click any request ID to see the full event timeline.</p>
+        </div>
+        <div class="dash-view">
+          <h4>Health</h4>
+          <p>Runtime status, Ollama connection, model info, uptime, and manifest summary at a glance.</p>
+        </div>
+        <div class="dash-view">
+          <h4>Security</h4>
+          <p>Policy block timeline and threat detection &mdash; path traversal attempts, SQL injection patterns, burst denials.</p>
+        </div>
+        <div class="dash-view">
+          <h4>Metrics</h4>
+          <p>Request throughput, tool usage breakdown, latency percentiles (p50/p95/p99), and error rates over time.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── What's Next ─────────────────────────────────────── -->
+  <section>
+    <div class="section-label">Next Steps</div>
+    <h2 class="section-title">Write your own manifest</h2>
+    <p class="section-subtitle">
+      Now that you've seen DomeKit in action, create a manifest for your own agent.
+    </p>
+
+    <div class="quickstart">
+      <div class="quickstart-header">
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        <span class="quickstart-dot"></span>
+        my-agent/domekit.yaml
+      </div>
+      <pre>
+<span class="cmd">app</span>:
+  <span class="flag">name</span>: my-agent
+  <span class="flag">version</span>: "0.1.0"
+
+<span class="cmd">runtime</span>:
+  <span class="flag">base_url</span>: "http://127.0.0.1:8080"
+  <span class="flag">policy_mode</span>: local_only
+
+<span class="cmd">policy</span>:
+  <span class="cmd">network</span>:
+    <span class="flag">outbound</span>: deny
+  <span class="cmd">tools</span>:
+    <span class="flag">allow</span>: [sql_query]         <span class="comment"># Add the tools your agent needs</span>
+  <span class="cmd">data</span>:
+    <span class="flag">sqlite</span>:
+      allow:
+        - <span class="flag">"path/to/your.db"</span>    <span class="comment"># Add your database paths</span>
+    <span class="flag">filesystem</span>:
+      allow_read: [<span class="flag">"data/"</span>]      <span class="comment"># Add your read paths</span>
+      allow_write: []
+
+<span class="cmd">models</span>:
+  <span class="flag">backend</span>: ollama
+  <span class="flag">default</span>: llama3.1:8b
+  <span class="cmd">map</span>:
+    <span class="cmd">default</span>:
+      <span class="flag">id</span>: llama3.1:8b
+      <span class="flag">context_window</span>: 8192
+
+<span class="cmd">tools</span>:
+  <span class="cmd">sql_query</span>:
+    <span class="flag">type</span>: builtin
+    <span class="flag">read_only</span>: true
+    <span class="flag">max_rows</span>: 100
+
+<span class="cmd">audit</span>:
+  <span class="flag">path</span>: "my-agent/audit.jsonl"</pre>
+    </div>
+
+    <div class="note" style="margin-top: 16px;">
+      Start with <code>policy_mode: local_only</code> (strict) and only add
+      permissions as your agent needs them. You can use <code>developer</code>
+      mode during development, but never in production.
+    </div>
+
+    <div style="margin-top: 32px;">
+      <p><strong>Useful resources:</strong></p>
+      <ul style="color: var(--text-secondary); line-height: 2; padding-left: 20px;">
+        <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md#manifest-reference">Full manifest reference</a> &mdash; all options explained</li>
+        <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md#built-in-tools">Built-in tools</a> &mdash; sql_query, read_file, write_file, vector_search</li>
+        <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md#api-reference">API reference</a> &mdash; all endpoints</li>
+        <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md#development">Adding custom tools</a> &mdash; extend DomeKit with your own tools</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────────────────── -->
+  <section class="cta">
+    <h2>Know what your AI agent is doing</h2>
+    <p>Open source. Runs locally. MIT licensed.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/a-choyster/domekit" class="btn btn-primary">View on GitHub</a>
+      <a href="index.html" class="btn">Back to Home</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>DomeKit &middot; Permissions and audit logs for local AI agents</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/a-choyster/domekit">GitHub</a></li>
+      <li><a href="https://github.com/a-choyster/domekit/blob/main/README.md">Docs</a></li>
+      <li><a href="https://github.com/a-choyster/domekit/blob/main/LICENSE">MIT License</a></li>
+    </ul>
+  </footer>
+
+  <!-- ── Theme Toggle ────────────────────────────────────── -->
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem('domekit-theme');
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+
+    toggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('domekit-theme', next);
+    });
+  </script>
+
+</body>
+</html>
