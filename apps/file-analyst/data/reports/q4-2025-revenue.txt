@@ -1,0 +1,22 @@
+Q4 2025 Revenue Report
+======================
+Period: October 1 - December 31, 2025
+
+Summary
+-------
+Total revenue: $4.2M (up 18% QoQ)
+Recurring revenue: $3.1M (74% of total)
+New customer revenue: $680K
+Expansion revenue: $420K
+
+Segment Breakdown
+-----------------
+Enterprise: $2.8M (67%) - 12 new contracts signed
+Mid-market: $980K (23%) - 34 new accounts
+Self-serve: $420K (10%) - steady growth from PLG motion
+
+Key Highlights
+--------------
+- Enterprise deal size averaged $233K, up from $195K in Q3.
+- Churn rate dropped to 2.1%, lowest in company history.
+- APAC region contributed $610K, a 42% increase over Q3.

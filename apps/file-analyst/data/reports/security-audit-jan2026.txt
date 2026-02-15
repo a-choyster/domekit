@@ -1,0 +1,31 @@
+Security Audit Report - January 2026
+=====================================
+Auditor: Internal AppSec Team
+Scope: Production infrastructure and application layer
+
+Executive Summary
+-----------------
+Overall risk posture: MODERATE
+Critical findings: 0
+High findings: 1
+Medium findings: 3
+Low findings: 7
+
+High-Severity Finding
+---------------------
+H-1: API rate limiting not enforced on /api/v2/export endpoint.
+     Impact: Potential data exfiltration at scale.
+     Remediation: Deploy rate limiter; patch shipped Jan 22.
+     Status: RESOLVED
+
+Medium-Severity Findings
+-------------------------
+M-1: TLS 1.0 still accepted on internal load balancer.
+M-2: Service account keys not rotated in 180+ days.
+M-3: Container images using outdated base (ubuntu:22.04 vs 24.04).
+
+Recommendations
+---------------
+- Enforce 90-day key rotation policy.
+- Upgrade base images across all services by end of Q1.
+- Schedule external penetration test for Q2 2026.

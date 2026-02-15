@@ -1,0 +1,30 @@
+2026 Hiring Plan
+================
+Approved by: VP of People, January 20, 2026
+
+Headcount Targets
+-----------------
+Current headcount: 142
+Target EOY headcount: 185
+Net new hires planned: 48 (accounting for ~5 attrition)
+
+Breakdown by Department
+-----------------------
+Engineering: +22 (8 backend, 6 frontend, 4 infra, 2 ML, 2 QA)
+Sales: +12 (6 AE, 4 SDR, 2 SE)
+Product: +5 (3 PM, 2 designer)
+Customer Success: +6 (4 CSM, 2 support)
+G&A: +3 (1 finance, 1 legal, 1 recruiting)
+
+Timeline
+--------
+Q1: 14 hires (focus on engineering backfill + sales)
+Q2: 16 hires (ML team buildout + APAC sales)
+Q3: 10 hires (product + CS scaling)
+Q4: 8 hires (remaining roles, backfills)
+
+Budget
+------
+Total recruiting budget: $960K
+Average cost-per-hire target: $20K
+Relocation budget: $150K (6 relo packages estimated)

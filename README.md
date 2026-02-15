@@ -118,6 +118,17 @@ DomeKit exposes an OpenAI-compatible API — any framework that talks to OpenAI 
 |-----------|-------------|
 | LangChain | [domekit-langchain-example](https://github.com/a-choyster/domekit-langchain-example) |
 | CrewAI | [domekit-crewai-example](https://github.com/a-choyster/domekit-crewai-example) |
+| LlamaIndex | [domekit-llamaindex-example](https://github.com/a-choyster/domekit-llamaindex-example) |
+
+### Demo Apps
+
+Included in this repo under `apps/`:
+
+| App | What it demonstrates |
+|-----|---------------------|
+| `apps/health-poc/` | Health data query agent with SQL + vector search |
+| `apps/file-analyst/` | File analysis agent restricted to a specific directory |
+| `apps/research-agent/` | Research agent with SQL + vector search + zero network access |
 
 ---
 

@@ -1,0 +1,21 @@
+app:
+  name: file-analyst
+
+policy:
+  network:
+    outbound: deny
+  tools:
+    allow: [read_file, sql_query]
+  data:
+    sqlite:
+      allow: ["apps/file-analyst/data/index.db"]
+    filesystem:
+      allow_read: ["apps/file-analyst/data/reports/"]
+      allow_write: []
+
+models:
+  backend: ollama
+  default: llama3.1:8b
+
+audit:
+  path: "apps/file-analyst/audit.jsonl"

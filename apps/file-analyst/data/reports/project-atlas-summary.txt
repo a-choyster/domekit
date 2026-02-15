@@ -1,0 +1,27 @@
+Project Atlas - Migration Summary
+=================================
+Last updated: January 28, 2026
+
+Objective
+---------
+Migrate core platform from monolithic architecture to a service-oriented
+design with independently deployable components.
+
+Status: ON TRACK (Phase 2 of 3)
+
+Completed (Phase 1)
+--------------------
+- Extracted authentication service (shipped Oct 2025)
+- Extracted notification service (shipped Nov 2025)
+- API gateway deployed with traffic splitting at 80/20
+
+In Progress (Phase 2)
+---------------------
+- Billing service extraction: 70% complete, ETA Feb 2026
+- Data pipeline decoupling: 45% complete, ETA Mar 2026
+- Legacy database read-replica cutover: scheduled for Feb 15
+
+Risks
+-----
+- Billing service has undocumented coupling to the reporting module.
+- Two senior engineers on the data pipeline team are on leave in March.
