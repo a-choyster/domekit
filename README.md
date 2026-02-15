@@ -110,6 +110,17 @@ Client → DomeKit Runtime → Policy Check → Tool Execution → Audit Log
 
 ---
 
+## Framework Examples
+
+DomeKit exposes an OpenAI-compatible API — any framework that talks to OpenAI works out of the box. Point it at `localhost:8080/v1` instead of OpenAI and DomeKit handles permissions and audit logging transparently.
+
+| Framework | Example Repo |
+|-----------|-------------|
+| LangChain | [domekit-langchain-example](https://github.com/a-choyster/domekit-langchain-example) |
+| CrewAI | [domekit-crewai-example](https://github.com/a-choyster/domekit-crewai-example) |
+
+---
+
 ## Dashboard
 
 Built-in observability dashboard at `/dashboard` — no build step, no dependencies.
