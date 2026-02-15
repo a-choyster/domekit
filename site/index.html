@@ -96,6 +96,11 @@
         <h3>Built-in Safety Checks</h3>
         <p>Path traversal prevention, SQL injection detection, burst request alerts. The guardrails that model servers don't include but your production system needs.</p>
       </div>
+      <div class="feature-card">
+        <div class="feature-icon feature-icon-orange">&#x1F50D;</div>
+        <h3>Vector Search, Policy-Controlled</h3>
+        <p>Semantic similarity search over ChromaDB or LanceDB collections with local Ollama embeddings. Every query is checked against your manifest &mdash; agents only search collections you allow.</p>
+      </div>
       <div class="feature-card wide">
         <div class="feature-icon feature-icon-orange">&#x1F4CA;</div>
         <h3>See What Your Agent Is Doing</h3>
@@ -124,7 +129,7 @@
 <span class="comment"># What tools can the agent use?</span>
 <span class="cmd">policy</span>:
   <span class="cmd">tools</span>:
-    <span class="flag">allow</span>: [sql_query, read_file]     <span class="comment"># only these two</span>
+    <span class="flag">allow</span>: [sql_query, read_file, vector_search]
 
   <span class="comment"># What data can it access?</span>
   <span class="cmd">data</span>:
@@ -133,6 +138,8 @@
     <span class="flag">filesystem</span>:
       allow_read: [<span class="flag">"data/"</span>]            <span class="comment"># this folder only</span>
       allow_write: []                   <span class="comment"># no writes</span>
+    <span class="flag">vector</span>:
+      allow: [<span class="flag">"my-collection"</span>]        <span class="comment"># vector search allowed here</span>
 
   <span class="comment"># Can it access the network?</span>
   <span class="cmd">network</span>:
@@ -245,6 +252,11 @@
         </tr>
         <tr class="highlight-row">
           <td>Detect path traversal / SQL injection</td>
+          <td><span class="cross">No</span></td>
+          <td><span class="check">Yes</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Policy-controlled vector search (ChromaDB / LanceDB)</td>
           <td><span class="cross">No</span></td>
           <td><span class="check">Yes</span></td>
         </tr>

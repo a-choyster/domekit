@@ -61,27 +61,39 @@ app:
 
 policy:
   network:
-    outbound: deny                # No external network access
+    outbound: deny                    # No external network access
   tools:
-    allow: [sql_query, read_file] # Only these tools permitted
+    allow: [sql_query, read_file,
+            vector_search]            # Only these tools permitted
   data:
     sqlite:
-      allow: ["data/my.db"]      # Only this database accessible
+      allow: ["data/my.db"]          # Only this database accessible
+    vector:
+      allow: ["my-collection"]        # Vector collections the agent can search
+      allow_write: []                 # No vector writes
 
 models:
   backend: ollama
   default: llama3.1:8b
 
+embedding:
+  backend: ollama
+  model: nomic-embed-text             # Local embeddings via Ollama
+
+vector_db:
+  backend: chroma                     # ChromaDB or LanceDB
+  default_top_k: 10
+
 audit:
   path: "audit.jsonl"
 ```
 
-DomeKit validates every tool call against this manifest, logs every action, and blocks anything not explicitly allowed.
+DomeKit validates every tool call against this manifest, logs every action, and blocks anything not explicitly allowed. Supports SQLite, ChromaDB, and LanceDB as data backends — all policy-controlled.
 
 ```
 Client → DomeKit Runtime → Policy Check → Tool Execution → Audit Log
-                ↕
-         Ollama (local model)
+                ↕                              ↕
+         Ollama (local model)     SQLite · ChromaDB · LanceDB
 ```
 
 ---
@@ -93,6 +105,8 @@ Client → DomeKit Runtime → Policy Check → Tool Execution → Audit Log
 | `sql_query` | Read-only SQLite queries | Path validation, read-only mode, row limits |
 | `read_file` | File reading | Path traversal prevention, size limits |
 | `write_file` | File writing | Path traversal prevention, size limits |
+| `vector_search` | Semantic similarity search over vector collections | Collection allow-list, top-k limits |
+| `vector_manage` | Insert, update, delete documents in vector collections | Separate write allow-list, policy-checked |
 
 ---
 
