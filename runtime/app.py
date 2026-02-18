@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -20,13 +19,11 @@ from contracts.audit import AuditEntry, AuditEvent
 
 from runtime.audit.logger import JsonlAuditLogger
 from runtime.audit.query import query_filtered, stream_tail, _read_all
-from runtime.manifest_loader import load_manifest
+from runtime.mcp_helpers import init_domekit
 from runtime.metrics import compute_metrics
 from runtime.model_adapters.ollama import OllamaAdapter
-from runtime.policy import DomeKitPolicyEngine
 from runtime.security import detect_alerts
 from runtime.tool_router import ToolRouter
-from runtime.tools.registry import create_default_registry
 
 # ── Module-level state (set during lifespan) ─────────────────────────
 
@@ -36,33 +33,6 @@ _manifest: Any = None
 _start_time: float = 0.0
 
 
-def _create_embedding_adapter(manifest: Any) -> Any:
-    """Create an embedding adapter from manifest config."""
-    backend = manifest.embedding.backend
-    if backend == "ollama":
-        from runtime.embedding_adapters.ollama import OllamaEmbeddingAdapter
-        return OllamaEmbeddingAdapter(model=manifest.embedding.model)
-    return None
-
-
-def _create_vector_adapter(manifest: Any) -> Any:
-    """Create a vector DB adapter from manifest config."""
-    backend = manifest.vector_db.backend
-    if backend == "chroma":
-        try:
-            from runtime.vector_adapters.chroma import ChromaVectorAdapter
-            return ChromaVectorAdapter(persist_path=".domekit/vector_db")
-        except ImportError:
-            return None
-    if backend == "lance":
-        try:
-            from runtime.vector_adapters.lance import LanceVectorAdapter
-            return LanceVectorAdapter(db_path=".domekit/vector_db")
-        except ImportError:
-            return None
-    return None
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Initialise all components on startup."""
@@ -70,27 +40,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     _start_time = time.time()
 
-    manifest_path = os.environ.get("DOMEKIT_MANIFEST", "./domekit.yaml")
-    _manifest = load_manifest(manifest_path)
-
-    policy = DomeKitPolicyEngine()
-    policy.load_manifest(_manifest)
-
-    embedding_adapter = _create_embedding_adapter(_manifest)
-    vector_adapter = _create_vector_adapter(_manifest)
-
-    registry = create_default_registry(
-        embedding_adapter=embedding_adapter,
-        vector_adapter=vector_adapter,
-    )
-
-    _logger = JsonlAuditLogger(_manifest.audit.path)
+    components = init_domekit()
+    _manifest = components.manifest
+    _logger = components.logger
 
     adapter = OllamaAdapter(base_url="http://localhost:11434")
 
     _router = ToolRouter(
-        policy=policy,
-        registry=registry,
+        policy=components.policy,
+        registry=components.registry,
         logger=_logger,
         adapter=adapter,
     )

@@ -145,6 +145,34 @@ Built-in observability dashboard at `/dashboard` — no build step, no dependenc
 
 ---
 
+## MCP Server
+
+DomeKit includes an MCP (Model Context Protocol) server that exposes all 5 policy-checked tools to any MCP client — Claude Desktop, Cursor, Windsurf, Claude Code, and more. Tools run inside DomeKit with full policy enforcement and audit logging.
+
+```bash
+# Start the MCP server
+python cli/domekit.py mcp domekit.yaml
+```
+
+Configure in Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "domekit": {
+      "command": "python",
+      "args": ["-m", "runtime.mcp_server"],
+      "cwd": "/path/to/domekit",
+      "env": { "DOMEKIT_MANIFEST": "/path/to/domekit.yaml" }
+    }
+  }
+}
+```
+
+See [docs/mcp-server.md](docs/mcp-server.md) for full setup instructions.
+
+---
+
 ## CLI
 
 ```bash
@@ -165,6 +193,7 @@ python cli/domekit.py logs audit.jsonl -r <request_id>
 
 | Topic | Link |
 |-------|------|
+| MCP server setup | [docs/mcp-server.md](docs/mcp-server.md) |
 | Architecture & diagrams | [docs/architecture.md](docs/architecture.md) |
 | Manifest reference | [docs/manifest-reference.md](docs/manifest-reference.md) |
 | API reference | [docs/api-reference.md](docs/api-reference.md) |

@@ -117,6 +117,29 @@ def cmd_logs(args: argparse.Namespace) -> None:
             print(f"{ts}  [{event:16s}]  {rid}  {detail}")
 
 
+def cmd_mcp(args: argparse.Namespace) -> None:
+    """Start the DomeKit MCP server (stdio transport)."""
+    import os
+
+    os.environ["DOMEKIT_MANIFEST"] = args.manifest
+
+    from runtime.manifest_loader import load_manifest
+
+    try:
+        manifest = load_manifest(args.manifest)
+    except Exception as exc:
+        print(f"Error loading manifest: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Starting DomeKit MCP server for '{manifest.app.name}'...", file=sys.stderr)
+    print(f"  Manifest: {args.manifest}", file=sys.stderr)
+    print(f"  Transport: stdio", file=sys.stderr)
+    print(f"  Policy:   {manifest.runtime.policy_mode.value}", file=sys.stderr)
+
+    from runtime.mcp_server import mcp
+    mcp.run(transport="stdio")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="domekit",
@@ -140,6 +163,13 @@ def main() -> None:
     p_run.add_argument("--port", type=int, default=8080, help="Port")
     p_run.add_argument("--reload", action="store_true", help="Enable auto-reload")
     p_run.set_defaults(func=cmd_run)
+
+    # mcp
+    p_mcp = sub.add_parser("mcp", help="Start the DomeKit MCP server (stdio)")
+    p_mcp.add_argument(
+        "manifest", nargs="?", default="domekit.yaml", help="Path to manifest"
+    )
+    p_mcp.set_defaults(func=cmd_mcp)
 
     # logs
     p_logs = sub.add_parser("logs", help="Query audit logs")
